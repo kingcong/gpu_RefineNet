@@ -16,7 +16,7 @@
     - [脚本参数](#脚本参数)
     - [训练过程](#训练过程)
         - [用法](#用法)
-            - [处理器环境运行](#处理器环境运行)
+           
             - [GPU处理器环境运行](#gpu处理器环境运行)
         - [结果](#结果)
     - [评估过程](#评估过程)
@@ -121,7 +121,7 @@ Usage: python ~src/tool/build_MRcd.py --data_root=~/data/ --data_lst=~/voc_train
 
 # 环境要求
 
-- 硬件（）
+- 硬件（GPU）
     - 准备处理器搭建硬件环境。
 - 框架
     - [MindSpore](https://www.mindspore.cn/install)
@@ -198,25 +198,7 @@ run_eval.sh
 
 ## 脚本参数
 
-处理器环境默认配置
 
-```bash
-"data_file":"~/data/"                             # 数据集路径
-"device_target":                            # 训练后端类型
-"train_epochs":200                                # 总轮次数
-"batch_size":32                                   # 输入张量的批次大小
-"crop_size":513                                   # 裁剪大小
-"base_lr":0.0015                                  # 基础学习率
-"lr_type":cos                                     # 用于生成学习率的衰减模式
-"min_scale":0.5                                   # 数据增强的最小尺度
-"max_scale":2.0                                   # 数据增强的最大尺度
-"ignore_label":255                                # 忽略标签
-"num_classes":21                                  # 类别数
-"ckpt_pre_trained":"/PATH/TO/PRETRAIN_MODEL"      # 加载预训练检查点的路径
-"is_distributed":                                 # 分布式训练，设置该参数为True
-"save_epochs":5                                   # 用于保存的迭代间隙
-"freeze_bn":                                      # 设置该参数freeze_bn为True
-"keep_checkpoint_max":200                         # 用于保存的最大检查点
 ```
 
 GPU处理器环境默认配置
@@ -244,40 +226,7 @@ GPU处理器环境默认配置
 
 ### 用法
 
-#### 处理器环境运行
 
-首先准备ResNet_101预训练模型：resnet-101.ckpt，在RefineNet原始论文的基础上，我们先对SBD混合数据集进行训练，再采用Pascal Voc中的voc_train数据集进行finetune。最后对voc_val数据集进行了评估。
-
-运行以下训练脚本配置单卡训练参数，微调ResNet_101模型：
-
-```bash
-# run_standalone_train.sh
-Usage: bash scripts/run_standalone_train__r1.sh [DATASET_PATH] [PRETRAINED_PATH] [DEVICE_ID]
-# example: bash scripts/run_standalone_train__r1.sh ~/data/sbdonly0 /disk3/fyf/resnet-101.ckpt 0
-```
-
-运行以下训练脚本配置单卡训练参数，微调上一步模型：
-
-```bash
-# run_standalone_train.sh
-Usage: bash scripts/run_standalone_train__r2.sh [DATASET_PATH] [PRETRAINED_PATH] [DEVICE_ID]
-# example: bash scripts/run_standalone_train__r2.sh ~/data/voconly0 /disk3/fyf/RefineNet/scripts/refinenet-115_284.ckpt 4
-```
-
-运行以下训练脚本配置八卡训练参数，微调ResNet_101模型：
-
-```bash
-# run_distribute_train.sh
-Usage: bash scripts/run_distribute_train__r1.sh [RANK_TABLE_FILE] [DATASET_PATH] [PRETRAINED_PATH]
-# example: bash scripts/run_distribute_train__r1.sh hccl_8p_01234567_127.0.0.1.json ~/data/sbdonly0 /disk3/fyf/resnet-101.ckpt
-```
-
-运行以下训练脚本配置八卡训练参数，微调上一步模型：
-
-```bash
-# run_distribute_train.sh
-Usage: bash scripts/run_distribute_train__r2.sh [RANK_TABLE_FILE] [DATASET_PATH] [PRETRAINED_PATH]
-# example: bash scripts/run_distribute_train__r2.sh hccl_8p_01234567_127.0.0.1.json ~/data/voconly0 /disk3/fyf/RefineNet/scripts/refinenet-115_284.ckpt
 ```
 
 #### GPU处理器环境运行
@@ -318,78 +267,7 @@ Usage: bash scripts/run_distribute_train_gpu_r2.sh [DATASET_PATH] [PRETRAINED_PA
 
 ### 结果
 
-处理器环境结果
 
-- 在去除VOC2012重复部分的SBD数据集上训练，微调ResNet-101模型:
-
-```bash
-# 分布式训练结果（单卡）
-epoch: 1 step: 284, loss is 0.7524967
-epoch time: 546527.635 ms, per step time: 1924.393 ms
-epoch: 2 step: 284, loss is 0.7311493
-epoch time: 298406.836 ms, per step time: 1050.728 ms
-epoch: 3 step: 284, loss is 0.36002275
-epoch time: 298394.940 ms, per step time: 1050.686 ms
-epoch: 4 step: 284, loss is 0.50077325
-epoch time: 298390.876 ms, per step time: 1050.672 ms
-epoch: 5 step: 284, loss is 0.62343127
-epoch time: 309631.879 ms, per step time: 1090.253 ms
-epoch: 6 step: 284, loss is 0.3367705
-epoch time: 298388.706 ms, per step time: 1050.664 ms
-...
-```
-
-```bash
-# 分布式训练结果（8P）
-epoch: 1 step: 142, loss is 0.781318
-epoch time: 194373.504 ms, per step time: 1368.827 ms
-epoch: 2 step: 142, loss is 0.55504256
-epoch time: 54313.781 ms, per step time: 382.491 ms
-epoch: 3 step: 142, loss is 0.2290901
-epoch time: 54346.609 ms, per step time: 382.723 ms
-epoch: 4 step: 142, loss is 0.23693062
-epoch time: 54391.451 ms, per step time: 383.038 ms
-epoch: 5 step: 142, loss is 0.26892647
-epoch time: 59496.694 ms, per step time: 418.991 ms
-epoch: 6 step: 142, loss is 0.34565672
-epoch time: 54295.630 ms, per step time: 382.364 ms
-...
-```
-
-- 在单独的VOC2012数据集上训练,微调上一步模型
-
-```bash
-# 分布式训练结果（单卡）
-epoch: 1 step: 45, loss is 0.27439225
-epoch time: 292909.346 ms, per step time: 6509.097 ms
-epoch: 2 step: 45, loss is 0.3075968
-epoch time: 47189.032 ms, per step time: 1048.645 ms
-epoch: 3 step: 45, loss is 0.33274153
-epoch time: 47213.959 ms, per step time: 1049.199 ms
-epoch: 4 step: 45, loss is 0.15978609
-epoch time: 47171.244 ms, per step time: 1048.250 ms
-epoch: 5 step: 45, loss is 0.1546418
-epoch time: 59120.354 ms, per step time: 1313.786 ms
-epoch: 6 step: 45, loss is 0.12949142
-epoch time: 47178.499 ms, per step time: 1048.411 ms
-...
-```
-
-```bash
-# 分布式训练结果（8P）
-epoch: 1 step: 22, loss is 1.2161481
-epoch time: 142361.584 ms, per step time: 6470.981 ms
-epoch: 2 step: 22, loss is 0.11737871
-epoch time: 8448.342 ms, per step time: 384.016 ms
-epoch: 3 step: 22, loss is 0.09774251
-epoch time: 14003.816 ms, per step time: 636.537 ms
-epoch: 4 step: 22, loss is 0.0612365
-epoch time: 8421.547 ms, per step time: 382.798 ms
-epoch: 5 step: 22, loss is 0.09208072
-epoch time: 8432.817 ms, per step time: 383.310 ms
-epoch: 6 step: 22, loss is 0.1707601
-epoch time: 12969.236 ms, per step time: 589.511 ms
-...
 ```
 
 GPU处理器环境结果
@@ -415,20 +293,6 @@ epoch time: 410627.769 ms, per step time: 721.666 ms
 
 ### 用法
 
-#### 处理器环境运行
-
-使用--ckpt_path配置检查点，运行脚本，在eval_path/log中打印mIOU。
-
-```bash
-# run_eval.sh                     # 测试训练结果
-Usage: bash scripts/run_eval.sh [DATA_LST] [PRETRAINED_PATH] [DEVICE_TARGET] [DEVICE_ID]
-#example: bash scripts/run_eval.sh ~/data/voc_val_lst.txt   /data1/fyf/refinenet-115_1140.ckpt  0
-
-per-class IoU [0.92730402 0.89903323 0.42117934 0.82678775 0.69056955 0.72132475
- 0.8930829  0.81315161 0.80125108 0.32330532 0.74447242 0.58100735
- 0.77520672 0.74184709 0.8185944  0.79020087 0.51059369 0.7229567
- 0.36999663 0.79072283 0.74327523]
-mean IoU 0.8038030230633278
 
 ```
 
@@ -494,21 +358,21 @@ bash scripts/run_infer_310.sh [MINDIR_PATH] [DATA_ROOT] [DATA_LIST] [DEVICE_ID]
 
 ### 评估性能
 
-| 参数 |  910| GPU |
-| -------------------------- | -------------------------------------- | -----------|
-| 模型版本 | RefineNet | RefineNet |
-| 资源 |  910 | GForce RTX 3090 |
-| 上传日期 | 2021-09-17 | 2022-02-16 |
-| MindSpore版本 | 1.2 | 1.2 |
-| 数据集 | PASCAL VOC2012 + SBD | PASCAL VOC2012 + SBD |
-| 训练参数 | epoch = 200, batch_size = 32 | epoch=200,batch_size=16 |
-| 优化器 | Momentum | Momentum |
-| 损失函数 | Softmax交叉熵 | Softmax交叉熵 |
-| 输出 | 概率 | 概率 |
-| 损失 | 0.027490407 | 0.08345377 |
-| 性能 | 54294.528ms（八卡） 298406.836ms（单卡）| 723.160 ms（GPU单卡）|
-| 微调检查点 | 901M（.ckpt文件） | 900M（.ckpt文件）|
-| 脚本 | [链接](https://gitee.com/mindspore/models/tree/master/research/cv/RefineNet) | [链接](https://gitee.com/mindspore/models/tree/master/research/cv/RefineNet)
+| 参数 |GPU |
+| -------------------------- | -----------|
+| 模型版本 | RefineNet |
+| 资源 | GForce RTX 3090 |
+| 上传日期 | 2022-02-16 |
+| MindSpore版本 | 1.2 |
+| 数据集 | PASCAL VOC2012 + SBD |
+| 训练参数 | epoch=200,batch_size=16 |
+| 优化器 |  Momentum |
+| 损失函数 |  Softmax交叉熵 |
+| 输出 |概率 |
+| 损失 | 0.08345377 |
+| 性能 |  723.160 ms（GPU单卡）|
+| 微调检查点 |  900M（.ckpt文件）|
+| 脚本 |  [链接](https://gitee.com/mindspore/models/tree/master/research/cv/RefineNet)
 
 # 随机情况说明
 
